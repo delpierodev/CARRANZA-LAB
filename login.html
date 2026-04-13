@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login | Carranza Dental Lab</title>
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="login.css">
+</head>
+<body class="login-body">
+
+<div class="login-container">
+
+    <div class="login-visual">
+        <div class="login-visual-overlay"></div>
+        <div class="login-visual-content">
+            <p class="login-kicker">Acceso interno</p>
+            <h1>Gestiona pedidos, servicios y seguimiento desde un solo panel.</h1>
+            <p class="login-copy">Ingresa con tu cuenta administrativa para revisar solicitudes, actualizar estados y mantener el flujo del laboratorio bajo control.</p>
+            <div class="login-highlights">
+                <span><i class="ri-shield-check-line"></i> Acceso seguro</span>
+                <span><i class="ri-file-list-3-line"></i> Control de solicitudes</span>
+                <span><i class="ri-customer-service-2-line"></i> Gestion centralizada</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="login-card">
+      
+        <div class="login-logo">
+        <img src="img/carranza.png" alt="Logo Carranza Dental Lab">
+        <p class="login-sub">Panel de Administracion</p>
+        </div>
+
+        <div class="login-heading">
+            <h2>Bienvenido</h2>
+            <p>Ingresa tus credenciales para continuar.</p>
+        </div>
+
+        <div class="input-group">
+            <input type="email" id="email" required>
+            <label>Correo</label>
+        </div>
+
+        <div class="input-group">
+            <input type="password" id="password" required>
+            <label>Contraseña</label>
+        </div>
+
+        <button class="btn-login" onclick="login()">Ingresar</button>
+
+        <a href="index.html" class="back-link">← Volver al sitio web</a>
+
+        <p class="login-error" id="error"></p>
+    </div>
+
+</div>
+
+<script type="module" src="login.js?v=20260413a"></script>
+
+</body>
+</html>
