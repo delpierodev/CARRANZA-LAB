@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Admin | Carranza Dental Lab</title>
+
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="admin.css?v=20260413d">
+
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+
+<body>
+
+<div class="admin-layout">
+
+    
+    <aside class="sidebar">
+        <div>
+            <div class="sidebar-brand">
+                <img src="img/carranza.png" alt="Carranza Dental" class="sidebar-logo">
+                <div class="sidebar-brand-text">
+                    <h2>Admin</h2>
+                    <p>Carranza Dental Lab</p>
+                </div>
+            </div>
+
+            <button id="enableSound" class="btn-sound">
+                <i class="ri-volume-up-line"></i> Activar sonido
+            </button>
+
+            <ul>
+                <li onclick="mostrarSeccion('dashboard', event)">
+                    <i class="ri-bar-chart-line"></i> Dashboard
+                </li>
+
+                <li class="active" onclick="mostrarSeccion('pedidos', event)">
+                    <i class="ri-archive-line"></i> Pedidos
+                </li>
+
+                <li onclick="mostrarSeccion('servicios', event)">
+                    <i class="ri-tools-line"></i> Servicios
+                </li>
+
+                <li onclick="mostrarSeccion('ingresos', event)">
+                    <i class="ri-wallet-line"></i> Ingresos
+                </li>
+
+            </ul>
+
+        </div>
+
+        <button onclick="logout()" class="btn-logout">
+            <i class="ri-logout-box-r-line"></i> Cerrar sesión
+        </button>
+    </aside>
+
+    
+    <main class="main">
+
+        
+        <section id="dashboard">
+            <h2>Dashboard</h2>
+
+            <div class="kpis">
+
+                <div class="kpi-card">
+                    <i class="ri-archive-line"></i>
+                    <h3 id="kpiTotal">0</h3>
+                    <p>Total Pedidos</p>
+                </div>
+
+                <div class="kpi-card pendiente">
+                    <i class="ri-time-line"></i>
+                    <h3 id="kpiPendientes">0</h3>
+                    <p>Pendientes</p>
+                </div>
+
+                <div class="kpi-card proceso">
+                    <i class="ri-tools-line"></i>
+                    <h3 id="kpiProceso">0</h3>
+                    <p>En proceso</p>
+                </div>
+
+                <div class="kpi-card terminado">
+                    <i class="ri-check-line"></i>
+                    <h3 id="kpiTerminados">0</h3>
+                    <p>Terminados</p>
+                </div>
+
+                <div class="kpi-card ingresos">
+                    <i class="ri-money-dollar-circle-line"></i>
+                    <h3 id="kpiIngresosTotal">S/ 0.00</h3>
+                    <p>Ingresos Totales</p>
+                </div>
+
+            </div>
+
+            <div class="dashboard-charts">
+                <div class="chart-container">
+                    <h3>Estado de Pedidos</h3>
+                    <canvas id="graficoPedidos" height="100"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <h3>Tendencias Diarias</h3>
+                    <canvas id="graficoTendencias" height="100"></canvas>
+                </div>
+            </div>
+
+            <div class="dashboard-widgets">
+                <div class="widget">
+                    <h4>Resumen Semanal</h4>
+                    <div class="resumen-semanal">
+                        <div class="resumen-item">
+                            <span class="resumen-label">Esta semana:</span>
+                            <span class="resumen-valor" id="pedidosSemana">0</span>
+                        </div>
+                        <div class="resumen-item">
+                            <span class="resumen-label">Ingresos semana:</span>
+                            <span class="resumen-valor" id="ingresosSemana">S/ 0.00</span>
+                        </div>
+                        <div class="resumen-item">
+                            <span class="resumen-label">Promedio diario:</span>
+                            <span class="resumen-valor" id="promedioDiario">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="widget">
+                    <h4>Actividad Reciente</h4>
+                    <div class="actividad-lista" id="actividadReciente">
+                        <p style="color:#888; font-style:italic;">Cargando actividad...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        
+        <section id="pedidos" class="active">
+            <h2>Gestión de Pedidos</h2>
+
+            <div class="filtros filtros-pedidos">
+
+                <div class="filtros-left">
+
+                <input type="text" id="buscar" placeholder="Buscar...">
+
+                <button onclick="filtrar()">
+                    <i class="ri-search-line"></i> Buscar
+                </button>
+
+                <button onclick="generarReporteDetallado()">
+                    <i class="ri-file-list-line"></i> Reporte Detallado
+                </button>
+
+                </div>
+
+                <button class="btn-nuevo-pedido" onclick="mostrarFormularioPedido()">
+                    <i class="ri-add-line"></i> Nuevo Pedido
+                </button>
+
+            </div>
+
+            <div id="pedidoForm" class="detalle-expandido" style="display:none;">
+                <h3>Nuevo Pedido Manual</h3>
+
+                <div class="detalle-grid">
+                    <div class="detalle-grupo">
+                        <label>Código (opcional)</label>
+                        <input type="text" id="pedido-codigo" placeholder="Ej: CD-12345 (si lo dejas vacío se genera)">
+                    </div>
+
+                    <div class="detalle-grupo">
+                        <label>Nombre del cliente *</label>
+                        <input type="text" id="pedido-nombre" placeholder="Nombre completo">
+                    </div>
+
+                    <div class="detalle-grupo">
+                        <label>Teléfono *</label>
+                        <input type="text" id="pedido-telefono" placeholder="Ej: 987654321">
+                    </div>
+
+                    <div class="detalle-grupo">
+                        <label>Tipo de cliente</label>
+                        <select id="pedido-cliente">
+                            <option value="clinica">Clínica Dental</option>
+                            <option value="odontologo">Odontólogo Independiente</option>
+                            <option value="hospital">Hospital</option>
+                            <option value="particular">Paciente Particular</option>
+                        </select>
+                    </div>
+
+                    <div class="detalle-grupo">
+                        <label>Servicio *</label>
+                        <select id="pedido-servicio" onchange="autocompletarMontoDesdeServicio()">
+                            <option value="">Selecciona un servicio</option>
+                        </select>
+                    </div>
+
+                    <div class="detalle-grupo">
+                        <label>Tipo de trabajo</label>
+                        <select id="pedido-tipoTrabajo">
+                            <option value="nuevo">Nuevo</option>
+                            <option value="reparacion">Reparación</option>
+                        </select>
+                    </div>
+
+                    <div class="detalle-grupo">
+                        <label>Monto a cobrar (S/.) * (incluye IGV 18%)</label>
+                        <input type="number" id="pedido-monto" min="0" step="0.01" placeholder="Ej: 150">
+                    </div>
+
+                    <div class="detalle-grupo">
+                        <label>Urgencia</label>
+                        <select id="pedido-urgencia">
+                            <option value="normal">Normal</option>
+                            <option value="urgente">Urgente</option>
+                        </select>
+                    </div>
+
+                    <div class="detalle-grupo">
+                        <label>Método de entrega</label>
+                        <select id="pedido-entrega">
+                            <option value="delivery">Delivery gratuito</option>
+                            <option value="recojo_lab">Recojo en laboratorio</option>
+                            <option value="courier">Courier</option>
+                        </select>
+                    </div>
+
+                    <div class="detalle-grupo">
+                        <label>Estado inicial</label>
+                        <select id="pedido-estado">
+                            <option value="pendiente">Pendiente</option>
+                            <option value="en proceso">En proceso</option>
+                            <option value="terminado">Terminado</option>
+                        </select>
+                    </div>
+
+                    <div class="detalle-grupo" style="grid-column:1/-1;">
+                        <label>Detalles</label>
+                        <textarea id="pedido-detalles" placeholder="Especificaciones del caso, observaciones, origen del cliente, etc."></textarea>
+                    </div>
+
+                    <div class="detalle-acciones">
+                        <button class="btn-guardar" onclick="guardarPedidoManual()">
+                            <i class="ri-save-line"></i> Guardar Pedido
+                        </button>
+                        <button class="btn-cancelar" onclick="cerrarPedidoForm()">
+                            <i class="ri-close-line"></i> Cancelar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <table id="tblPedidos" class="table-clickeable">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Cliente</th>
+                        <th>Servicio</th>
+                        <th>Monto</th>
+                        <th>Entrega</th>
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+
+                <tbody id="tablaPedidos"></tbody>
+            </table>
+
+            
+            <div id="detalleExpandido" class="detalle-expandido" style="display:none;"></div>
+        </section>
+
+        
+        <section id="servicios">
+            <div class="servicio-header">
+                <h2>Servicios</h2>
+                <button class="btn-primario" onclick="mostrarFormularioServicio()">
+                    <i class="ri-add-line"></i> Nuevo Servicio
+                </button>
+            </div>
+
+            <div class="filtros">
+                <input type="text" id="buscarServicio" placeholder="Buscar servicio..." oninput="filtrarServicios()">
+            </div>
+
+            <div id="servicioForm" class="detalle-expandido" style="display:none;">
+                <h3 id="servicioFormTitle">Nuevo Servicio</h3>
+                <input type="hidden" id="servicio-id" />
+
+                <div class="detalle-grid">
+                    <div class="detalle-grupo">
+                        <label>Categoría</label>
+                        <input type="text" id="servicio-categoria" placeholder="Ej: Cerómeros" />
+                    </div>
+
+                    <div class="detalle-grupo">
+                        <label>Nombre del servicio</label>
+                        <input type="text" id="servicio-titulo" placeholder="Ej: Corona metal porcelana" />
+                    </div>
+
+                    <div class="detalle-grupo">
+                        <label>Precio</label>
+                        <input type="number" id="servicio-precio" placeholder="Ej: 150" step="0.01" />
+                    </div>
+
+
+                    <div class="detalle-acciones">
+                        <button class="btn-guardar" onclick="guardarServicio()">
+                            <i class="ri-save-line"></i> Guardar Servicio
+                        </button>
+                        <button class="btn-cancelar" onclick="cerrarServicioForm()">
+                            <i class="ri-close-line"></i> Cancelar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tablaServicios"></div>
+        </section>
+
+        
+        <section id="ingresos">
+            <h2>Ingresos</h2>
+
+            <div class="kpis">
+                <div class="kpi-card">
+                    <h3 id="ingresoHoy">S/ 0.00</h3>
+                    <p>Hoy</p>
+                </div>
+
+                <div class="kpi-card">
+                    <h3 id="ingresoMes">S/ 0.00</h3>
+                    <p>Este Mes</p>
+                </div>
+
+                <div class="kpi-card">
+                    <h3 id="ingresoAnio">S/ 0.00</h3>
+                    <p>Este Año</p>
+                </div>
+
+                <div class="kpi-card">
+                    <h3 id="ingresoTotal">S/ 0.00</h3>
+                    <p>Total</p>
+                </div>
+            </div>
+
+            <div class="grafico-container">
+                <h3>Ingresos por Mes</h3>
+                <canvas id="graficoIngresos" height="100"></canvas>
+            </div>
+
+            <div class="filtros" style="margin-top: 30px;">
+                <button onclick="exportarIngresosPDF()">
+                    <i class="ri-file-pdf-line"></i> Descargar Reporte
+                </button>
+            </div>
+
+            <h3 style="margin-top: 30px;">Detalle de Ingresos</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Cliente</th>
+                        <th>Servicio</th>
+                        <th>Monto</th>
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+
+                <tbody id="tablaIngresos"></tbody>
+            </table>
+        </section>
+
+    </main>
+
+</div>
+
+<script type="module" src="admin.js?v=20260413h"></script>
+
+</body>
+</html>
