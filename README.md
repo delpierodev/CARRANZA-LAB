@@ -108,4 +108,4 @@ Luego abre:
 
 ## Autor
 
-Carranza Dental Lab
+- GitHub: [delpierodev](https://github.com/delpierodev)
